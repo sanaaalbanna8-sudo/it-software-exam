@@ -36,7 +36,7 @@
       </p>
       <ul class="exam-meta">
         <li><strong>الجزء 1:</strong> 17 سؤال فهم وسيناريوهات</li>
-        <li><strong>الجزء 2:</strong> 10 جمل — صنّفها إلى GUI · CLI · Menu-based · Adapted</li>
+        <li><strong>الجزء 2:</strong> سحب وإفلات — اسحب الجمل إلى الواجهات الأربع</li>
         <li>في النهاية تظهر الدرجة + مراجعة كل الإجابات مع السبب</li>
       </ul>
       <label class="exam-name">
@@ -62,10 +62,10 @@
     </section>
 
     <section class="exam-card" id="bridge" hidden>
-      <div class="kicker">Part 2</div>
-      <h1>الجزء الثاني · تصنيف الواجهات</h1>
+      <div class="kicker">Part 2 · Drag &amp; drop</div>
+      <h1>الجزء الثاني · سحب وإفلات</h1>
       <p class="lead">
-        خلصت الجزء الأول. الآن جمل بسيطة — اختَر الواجهة المناسبة من الأربع فقط:
+        اسحب كل جملة إلى صندوق الواجهة المناسب. على الجوال: اضغط الجملة ثم اضغط الصندوق.
       </p>
       <ul class="exam-meta">
         <li><strong>Graphical (GUI)</strong> — نوافذ وأيقونات ومؤشر</li>
@@ -73,7 +73,42 @@
         <li><strong>Menu-based</strong> — قائمة خيارات جاهزة (ATM، ميكروويف…)</li>
         <li><strong>Adapted</strong> — تكييف لضعف البصر أو احتياجات خاصة</li>
       </ul>
-      <button class="start" id="start-part2" type="button">ابدأ الجزء 2</button>
+      <button class="start" id="start-part2" type="button">افتح لوحة التصنيف</button>
+    </section>
+
+    <section class="exam-card exam-card-wide" id="dnd" hidden>
+      <div class="kicker">الجزء 2 · Drag &amp; drop</div>
+      <h2>اسحب الجملة إلى الواجهة الصحيحة</h2>
+      <p class="lead" id="dnd-hint">المتبقي: <strong id="dnd-left">10</strong> · على الجوال اضغط الجملة ثم الصندوق</p>
+
+      <div class="dnd-pool" id="dnd-pool" data-zone="pool"></div>
+
+      <div class="dnd-bins" id="dnd-bins">
+        <div class="dnd-bin" data-zone="0">
+          <h3>Graphical (GUI)</h3>
+          <p>نوافذ · أيقونات · مؤشر</p>
+          <div class="dnd-drop" data-drop="0"></div>
+        </div>
+        <div class="dnd-bin" data-zone="1">
+          <h3>Command line (CLI)</h3>
+          <p>أوامر نصية</p>
+          <div class="dnd-drop" data-drop="1"></div>
+        </div>
+        <div class="dnd-bin" data-zone="2">
+          <h3>Menu-based</h3>
+          <p>قائمة خيارات جاهزة</p>
+          <div class="dnd-drop" data-drop="2"></div>
+        </div>
+        <div class="dnd-bin" data-zone="3">
+          <h3>Adapted</h3>
+          <p>تكييف وإمكانية وصول</p>
+          <div class="dnd-drop" data-drop="3"></div>
+        </div>
+      </div>
+
+      <div class="exam-nav" style="justify-content:center;margin-top:18px">
+        <button class="start" id="submit-dnd" type="button">تسليم ومراجعة الإجابات</button>
+      </div>
     </section>
 
     <section class="exam-card" id="result" hidden>

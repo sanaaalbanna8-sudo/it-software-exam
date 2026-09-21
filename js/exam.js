@@ -247,7 +247,7 @@
     "Adapted"
   ];
 
-  const CLASSIFY = [
+  const CLASSIFY_RAW = [
     {
       scene: "مستخدم ينقر أيقونات ويفتح نوافذ بالفأرة على شاشة ويندوز.",
       answer: 0,
@@ -298,19 +298,12 @@
       answer: 0,
       why: "العمل اليومي بالأيقونات والنوافذ = GUI."
     }
-  ].map((q) => ({
-    section: "UI classify",
-    tag: "الجزء 2 · صنّف الواجهة",
-    scene: q.scene,
-    ask: "هذه الجملة تناسب أي واجهة من الأربع؟",
-    choices: [...UI4],
-    answer: q.answer,
-    why: q.why
-  }));
+  ];
 
   const intro = document.getElementById("intro");
   const quiz = document.getElementById("quiz");
   const bridge = document.getElementById("bridge");
+  const dnd = document.getElementById("dnd");
   const result = document.getElementById("result");
   const nameInput = document.getElementById("student-name");
   const qCount = document.getElementById("q-count");
@@ -321,12 +314,15 @@
   const qChoices = document.getElementById("q-choices");
   const qPrev = document.getElementById("q-prev");
   const qNext = document.getElementById("q-next");
+  const poolEl = document.getElementById("dnd-pool");
+  const dndLeft = document.getElementById("dnd-left");
 
   let part1 = [];
   let part2 = [];
   let deck = [];
   let i = 0;
-  let mode = "part1";
+  let selectedId = null;
+  let dragId = null;
 
   function shuffle(arr) {
     const a = [...arr];
@@ -354,15 +350,14 @@
   }
 
   function show(el) {
-    [intro, quiz, bridge, result].forEach((n) => { n.hidden = true; });
+    [intro, quiz, bridge, dnd, result].forEach((n) => { n.hidden = true; });
     el.hidden = false;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function render() {
+  function renderQuiz() {
     const q = deck[i];
-    const label = mode === "part1" ? "الجزء 1" : "الجزء 2";
-    qCount.textContent = `${label}: ${i + 1} / ${deck.length}`;
+    qCount.textContent = `الجزء 1: ${i + 1} / ${deck.length}`;
     examBar.style.width = `${((i + 1) / deck.length) * 100}%`;
     qTag.textContent = q.tag;
     qTitle.textContent = q.ask;
@@ -375,17 +370,84 @@
       btn.textContent = text;
       btn.addEventListener("click", () => {
         q.pick = idx;
-        render();
+        renderQuiz();
       });
       qChoices.appendChild(btn);
     });
     qPrev.disabled = i === 0;
-    if (mode === "part1" && i === deck.length - 1) {
-      qNext.textContent = "إنهاء الجزء 1 ← الجزء 2";
-    } else if (mode === "part2" && i === deck.length - 1) {
-      qNext.textContent = "تسليم ومراجعة الإجابات";
-    } else {
-      qNext.textContent = "التالي";
+    qNext.textContent = i === deck.length - 1 ? "إنهاء الجزء 1 ← الجزء 2" : "التالي";
+  }
+
+  function placeCard(id, zone) {
+    const item = part2.find((x) => x.id === id);
+    if (!item) return;
+    item.pick = zone === "pool" ? null : Number(zone);
+    selectedId = null;
+    renderDnd();
+  }
+
+  function makeCard(item) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "dnd-card" + (selectedId === item.id ? " selected" : "");
+    card.textContent = item.scene;
+    card.draggable = true;
+    card.dataset.id = item.id;
+
+    card.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (selectedId === item.id) selectedId = null;
+      else selectedId = item.id;
+      renderDnd();
+    });
+
+    card.addEventListener("dragstart", (e) => {
+      dragId = item.id;
+      selectedId = item.id;
+      card.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", item.id);
+      e.dataTransfer.effectAllowed = "move";
+    });
+    card.addEventListener("dragend", () => {
+      dragId = null;
+      card.classList.remove("dragging");
+    });
+
+    return card;
+  }
+
+  function wireDropTarget(el, zone) {
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      el.classList.add("over");
+    });
+    el.addEventListener("dragleave", () => el.classList.remove("over"));
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      el.classList.remove("over");
+      const id = e.dataTransfer.getData("text/plain") || dragId;
+      if (id) placeCard(id, zone);
+    });
+    el.addEventListener("click", () => {
+      if (selectedId) placeCard(selectedId, zone);
+    });
+  }
+
+  function renderDnd() {
+    poolEl.innerHTML = "";
+    document.querySelectorAll(".dnd-drop").forEach((drop) => {
+      drop.innerHTML = "";
+      drop.classList.toggle("has-selected", !!selectedId);
+    });
+
+    const unplaced = part2.filter((x) => x.pick === null);
+    dndLeft.textContent = String(unplaced.length);
+
+    unplaced.forEach((item) => poolEl.appendChild(makeCard(item)));
+
+    for (let z = 0; z < 4; z++) {
+      const drop = document.querySelector(`.dnd-drop[data-drop="${z}"]`);
+      part2.filter((x) => x.pick === z).forEach((item) => drop.appendChild(makeCard(item)));
     }
   }
 
@@ -406,12 +468,19 @@
       const ok = q.pick === q.answer;
       const item = document.createElement("article");
       item.className = "review-item " + (ok ? "ok" : "bad");
-      const yours = q.pick === null ? "بدون إجابة" : q.choices[q.pick];
-      const correct = q.choices[q.answer];
+      let yours;
+      let correct;
+      if (q.section === "UI classify") {
+        yours = q.pick === null ? "بدون تصنيف" : UI4[q.pick];
+        correct = UI4[q.answer];
+      } else {
+        yours = q.pick === null ? "بدون إجابة" : q.choices[q.pick];
+        correct = q.choices[q.answer];
+      }
       item.innerHTML = `
-        <h3>${n + 1}) ${q.tag}</h3>
+        <h3>${n + 1}) ${q.tag || "الجزء 2 · سحب وإفلات"}</h3>
         <p class="exam-scene" style="margin-bottom:8px">${q.scene}</p>
-        <p class="pick"><strong>${q.ask}</strong></p>
+        ${q.ask ? `<p class="pick"><strong>${q.ask}</strong></p>` : ""}
         <p class="pick">إجابتك: <b class="${ok ? "good" : "bad"}">${yours}</b></p>
         <p class="pick">الصحيح: <b class="good">${correct}</b></p>
         <p class="why"><strong>ليش؟</strong> ${q.why}</p>
@@ -423,7 +492,7 @@
   function finishAll() {
     const unanswered = part2.filter((q) => q.pick === null).length;
     if (unanswered > 0) {
-      const go = confirm(`باقي ${unanswered} سؤال في الجزء 2 بلا إجابة. تسليم الآن؟`);
+      const go = confirm(`باقي ${unanswered} جملة بلا تصنيف. تسليم الآن؟`);
       if (!go) return;
     }
 
@@ -454,7 +523,7 @@
       "OS types": "أنظمة التشغيل",
       "OS role": "مهام النظام",
       UI: "الواجهات (جزء 1)",
-      "UI classify": "تصنيف الواجهات (جزء 2)"
+      "UI classify": "سحب وإفلات (جزء 2)"
     };
     const stats = sectionStats(all);
     const box = document.getElementById("breakdown");
@@ -482,40 +551,56 @@
 
   function startPart1() {
     part1 = shuffle(BANK).map(mapQ);
-    part2 = shuffle(CLASSIFY).map(mapQ);
+    part2 = shuffle(CLASSIFY_RAW).map((q, idx) => ({
+      id: "c" + idx,
+      section: "UI classify",
+      tag: "الجزء 2 · سحب وإفلات",
+      scene: q.scene,
+      ask: null,
+      why: q.why,
+      answer: q.answer,
+      pick: null
+    }));
     deck = part1;
-    mode = "part1";
     i = 0;
+    selectedId = null;
     show(quiz);
-    render();
+    renderQuiz();
   }
 
   function startPart2() {
-    deck = part2;
-    mode = "part2";
-    i = 0;
-    show(quiz);
-    render();
+    selectedId = null;
+    show(dnd);
+    renderDnd();
   }
+
+  // Wire drop zones once
+  wireDropTarget(poolEl, "pool");
+  document.querySelectorAll(".dnd-drop").forEach((drop) => {
+    wireDropTarget(drop, drop.dataset.drop);
+  });
+  document.querySelectorAll(".dnd-bin").forEach((bin) => {
+    wireDropTarget(bin, bin.dataset.zone);
+  });
 
   document.getElementById("start-exam").addEventListener("click", startPart1);
   document.getElementById("start-part2").addEventListener("click", startPart2);
+  document.getElementById("submit-dnd").addEventListener("click", finishAll);
 
   qPrev.addEventListener("click", () => {
     if (i > 0) {
       i -= 1;
-      render();
+      renderQuiz();
     }
   });
 
   qNext.addEventListener("click", () => {
     if (i < deck.length - 1) {
       i += 1;
-      render();
+      renderQuiz();
       return;
     }
-    if (mode === "part1") endPart1();
-    else finishAll();
+    endPart1();
   });
 
   document.getElementById("retry-btn").addEventListener("click", () => {

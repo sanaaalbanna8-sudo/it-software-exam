@@ -302,7 +302,85 @@ h3 { font-size: 18px; }
 .review-item .pick b.good { color: var(--good); }
 .review-item .pick b.bad { color: var(--bad); }
 
+.exam-card-wide { max-width: none; }
+.exam-wrap:has(#dnd:not([hidden])) { max-width: 1100px; }
+
+.dnd-pool {
+  min-height: 88px;
+  margin: 14px 0 18px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px dashed var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+}
+.dnd-pool.over,
+.dnd-drop.over,
+.dnd-bin.over {
+  border-color: var(--auto);
+  background: rgba(61, 156, 255, 0.1);
+}
+
+.dnd-bins {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.dnd-bin {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+.dnd-bin h3 { font-size: 15px; margin: 0 0 4px; color: var(--auto-2); }
+.dnd-bin > p { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+.dnd-drop {
+  min-height: 110px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dnd-drop.has-selected {
+  border-color: rgba(255, 138, 61, 0.55);
+  background: rgba(255, 138, 61, 0.08);
+}
+
+.dnd-card {
+  text-align: right;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: grab;
+}
+.dnd-pool .dnd-card {
+  width: auto;
+  max-width: 100%;
+  flex: 1 1 220px;
+}
+.dnd-card.selected {
+  border-color: var(--manual);
+  background: rgba(255, 138, 61, 0.16);
+  box-shadow: 0 0 0 2px rgba(255, 138, 61, 0.25);
+}
+.dnd-card.dragging { opacity: 0.45; }
+.dnd-card:active { cursor: grabbing; }
+
 @media (max-width: 700px) {
   .exam-breakdown { grid-template-columns: 1fr; }
   .exam-card { padding: 20px 16px; }
+  .dnd-bins { grid-template-columns: 1fr; }
 }
