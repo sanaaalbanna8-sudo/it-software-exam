@@ -199,6 +199,7 @@ h3 { font-size: 18px; }
   font-weight: 800;
   font-size: 14px;
 }
+.exam-name .req { color: var(--bad); }
 .exam-name input {
   width: 100%;
   padding: 12px 14px;
@@ -212,6 +213,38 @@ h3 { font-size: 18px; }
 .exam-name input:focus {
   outline: 2px solid rgba(61, 156, 255, 0.45);
   border-color: transparent;
+}
+.exam-name .name-hint {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+.exam-name.is-invalid input {
+  border-color: var(--bad);
+  outline: 2px solid rgba(255, 93, 122, 0.35);
+}
+.exam-name.is-invalid .name-hint { color: var(--bad); }
+.save-status {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.save-status.ok {
+  background: rgba(61, 255, 176, 0.12);
+  color: var(--good);
+  border: 1px solid rgba(61, 255, 176, 0.28);
+}
+.save-status.bad {
+  background: rgba(255, 93, 122, 0.12);
+  color: var(--bad);
+  border: 1px solid rgba(255, 93, 122, 0.28);
+}
+.save-status.wait {
+  background: rgba(61, 156, 255, 0.12);
+  color: var(--auto);
+  border: 1px solid rgba(61, 156, 255, 0.28);
 }
 .exam-progress { display: grid; gap: 8px; margin-bottom: 16px; }
 .exam-progress span { font-weight: 800; color: var(--muted); font-size: 13px; }

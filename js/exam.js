@@ -1,4 +1,7 @@
 (() => {
+  // بعد Deploy لـ Apps Script الصقي رابط الـ Web app هنا:
+  const SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwjYaW4Rt7r6icZHXzAEDALGBdB50tXxhVtNWHC9eSHSZ6T3pMjT0HhDiTVAijNCRiT/exec";
+
   const BANK = [
     {
       section: "OS types",
@@ -306,6 +309,9 @@
   const dnd = document.getElementById("dnd");
   const result = document.getElementById("result");
   const nameInput = document.getElementById("student-name");
+  const nameField = document.getElementById("name-field");
+  const nameHint = document.getElementById("name-hint");
+  const saveStatus = document.getElementById("save-status");
   const qCount = document.getElementById("q-count");
   const examBar = document.getElementById("exam-bar");
   const qTag = document.getElementById("q-tag");
@@ -323,6 +329,7 @@
   let i = 0;
   let selectedId = null;
   let dragId = null;
+  let studentName = "";
 
   function shuffle(arr) {
     const a = [...arr];
@@ -352,6 +359,7 @@
   function show(el) {
     [intro, quiz, bridge, dnd, result].forEach((n) => { n.hidden = true; });
     el.hidden = false;
+    document.body.classList.toggle("is-dnd", el === dnd);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -489,6 +497,51 @@
     });
   }
 
+  function requireName() {
+    const name = nameInput.value.trim();
+    if (name.length < 2) {
+      nameField.classList.add("is-invalid");
+      nameHint.textContent = "اكتبي الاسم الثلاثي قبل البدء (إجباري)";
+      nameInput.focus();
+      return null;
+    }
+    nameField.classList.remove("is-invalid");
+    nameHint.textContent = "الاسم إجباري — الدرجة تُحفظ في جدول العلامات";
+    return name;
+  }
+
+  function setSaveStatus(kind, text) {
+    saveStatus.hidden = false;
+    saveStatus.className = "save-status " + kind;
+    saveStatus.textContent = text;
+  }
+
+  function frac(stats, key) {
+    const s = stats[key] || { ok: 0, total: 0 };
+    return `${s.ok}/${s.total}`;
+  }
+
+  function submitToSheet(payload) {
+    if (!SHEETS_ENDPOINT) {
+      setSaveStatus("bad", "الدرجة ظهرت هنا، لكن الربط مع الجدول غير مفعّل بعد (يلزم رابط Apps Script).");
+      return Promise.resolve(false);
+    }
+    setSaveStatus("wait", "جاري حفظ الدرجة في جدول العلامات…");
+    return fetch(SHEETS_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    })
+      .then(() => {
+        setSaveStatus("ok", "تم حفظ الدرجة في جدول العلامات ✓");
+        return true;
+      })
+      .catch(() => {
+        setSaveStatus("bad", "تعذّر حفظ الدرجة في الجدول. تحققي من الاتصال ثم أعيدي المحاولة.");
+        return false;
+      });
+  }
+
   function finishAll() {
     const unanswered = part2.filter((q) => q.pick === null).length;
     if (unanswered > 0) {
@@ -500,7 +553,7 @@
     const score = all.filter((q) => q.pick === q.answer).length;
     const total = all.length;
     const pct = Math.round((score / total) * 100);
-    const name = nameInput.value.trim();
+    const name = studentName || nameInput.value.trim();
     document.getElementById("final-score").textContent = `${score}/${total}`;
 
     let title = "تحتاج مراجعة سريعة";
@@ -538,6 +591,22 @@
 
     buildReview(all);
     show(result);
+
+    const part1Score = part1.filter((q) => q.pick === q.answer).length;
+    const part2Score = part2.filter((q) => q.pick === q.answer).length;
+    submitToSheet({
+      timestamp: new Date().toLocaleString("ar-JO", { hour12: false }),
+      name,
+      score,
+      total,
+      percent: pct,
+      part1: `${part1Score}/${part1.length}`,
+      part2: `${part2Score}/${part2.length}`,
+      osTypes: frac(stats, "OS types"),
+      osRole: frac(stats, "OS role"),
+      ui: frac(stats, "UI"),
+      uiClassify: frac(stats, "UI classify")
+    });
   }
 
   function endPart1() {
@@ -550,6 +619,9 @@
   }
 
   function startPart1() {
+    const name = requireName();
+    if (!name) return;
+    studentName = name;
     part1 = shuffle(BANK).map(mapQ);
     part2 = shuffle(CLASSIFY_RAW).map((q, idx) => ({
       id: "c" + idx,
@@ -587,6 +659,13 @@
   document.getElementById("start-part2").addEventListener("click", startPart2);
   document.getElementById("submit-dnd").addEventListener("click", finishAll);
 
+  nameInput.addEventListener("input", () => {
+    if (nameField.classList.contains("is-invalid") && nameInput.value.trim().length >= 2) {
+      nameField.classList.remove("is-invalid");
+      nameHint.textContent = "الاسم إجباري — الدرجة تُحفظ في جدول العلامات";
+    }
+  });
+
   qPrev.addEventListener("click", () => {
     if (i > 0) {
       i -= 1;
@@ -604,6 +683,8 @@
   });
 
   document.getElementById("retry-btn").addEventListener("click", () => {
+    studentName = "";
+    saveStatus.hidden = true;
     show(intro);
   });
 })();
