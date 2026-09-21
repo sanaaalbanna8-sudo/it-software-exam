@@ -21,8 +21,8 @@
     <div class="brand">
       <span class="mark">A4</span>
       <span>
-        <b>امتحان الفهم · الجزء الأول</b>
-        <small>Operating systems · User interfaces</small>
+        <b>امتحان الفهم · OS &amp; UI</b>
+        <small>الجزء 1 + تصنيف الواجهات</small>
       </span>
     </div>
   </header>
@@ -32,24 +32,23 @@
       <div class="kicker">Formative quiz · Scenarios</div>
       <h1>هل ميّزت الفروقات؟</h1>
       <p class="lead">
-        هذا الامتحان يغطي الجزء الأول من الدرس حتى سؤال النقاش (GUI مقابل CLI):
-        أنواع أنظمة التشغيل، مهام نظام التشغيل، وأنواع الواجهات ومتى نستخدم كل واحدة.
+        الامتحان من جزئين: فهم أنظمة التشغيل والواجهات، ثم تصنيف جمل بسيطة إلى الواجهات الأربع.
       </p>
       <ul class="exam-meta">
-        <li><strong>الجزء 1:</strong> 17 سؤال فهم وسيناريوهات (أنظمة التشغيل + المهام + الواجهات)</li>
-        <li><strong>الجزء 2:</strong> 10 جمل بسيطة — صنّفها إلى الواجهات الأربع: GUI · CLI · Menu-based · Adapted</li>
-        <li>اختر الإجابة الأنسب · بعد التسليم يظهر التصحيح والسبب</li>
+        <li><strong>الجزء 1:</strong> 17 سؤال فهم وسيناريوهات</li>
+        <li><strong>الجزء 2:</strong> 10 جمل — صنّفها إلى GUI · CLI · Menu-based · Adapted</li>
+        <li>في النهاية تظهر الدرجة + مراجعة كل الإجابات مع السبب</li>
       </ul>
       <label class="exam-name">
         اسم الطالب (اختياري)
         <input type="text" id="student-name" placeholder="اكتب اسمك هنا…" autocomplete="name" />
       </label>
-      <button class="start" id="start-exam" type="button">ابدأ الامتحان</button>
+      <button class="start" id="start-exam" type="button">ابدأ الجزء 1</button>
     </section>
 
     <section class="exam-card" id="quiz" hidden>
       <div class="exam-progress">
-        <span id="q-count">1 / 27</span>
+        <span id="q-count">1 / 17</span>
         <div class="progress"><i id="exam-bar"></i></div>
       </div>
       <div class="exam-tag" id="q-tag"></div>
@@ -62,24 +61,37 @@
       </div>
     </section>
 
+    <section class="exam-card" id="bridge" hidden>
+      <div class="kicker">Part 2</div>
+      <h1>الجزء الثاني · تصنيف الواجهات</h1>
+      <p class="lead">
+        خلصت الجزء الأول. الآن جمل بسيطة — اختَر الواجهة المناسبة من الأربع فقط:
+      </p>
+      <ul class="exam-meta">
+        <li><strong>Graphical (GUI)</strong> — نوافذ وأيقونات ومؤشر</li>
+        <li><strong>Command line (CLI)</strong> — أوامر نصية</li>
+        <li><strong>Menu-based</strong> — قائمة خيارات جاهزة (ATM، ميكروويف…)</li>
+        <li><strong>Adapted</strong> — تكييف لضعف البصر أو احتياجات خاصة</li>
+      </ul>
+      <button class="start" id="start-part2" type="button">ابدأ الجزء 2</button>
+    </section>
+
     <section class="exam-card" id="result" hidden>
       <div class="kicker">Result</div>
       <div class="score-ring" id="score-ring"><b id="final-score">0</b></div>
       <h2 id="result-title">انتهى الامتحان</h2>
       <p class="lead" id="result-msg"></p>
       <div class="exam-breakdown" id="breakdown"></div>
-      <div class="exam-nav" style="justify-content:center;margin-top:22px;gap:12px">
-        <button class="start" id="review-btn" type="button">راجع الإجابات</button>
-        <button class="icon-btn" id="retry-btn" type="button">أعد المحاولة</button>
-      </div>
-    </section>
 
-    <section class="exam-card" id="review" hidden>
-      <div class="kicker">Review</div>
-      <h2>مراجعة الإجابات مع السبب</h2>
-      <div id="review-list"></div>
-      <div class="exam-nav" style="justify-content:center;margin-top:22px">
-        <button class="start" id="back-result" type="button">رجوع للنتيجة</button>
+      <div class="review-block">
+        <div class="kicker">Review</div>
+        <h2>مراجعة الإجابات</h2>
+        <p class="lead" style="margin-bottom:8px">كل سؤال مع إجابتك والصحيح والسبب.</p>
+        <div id="review-list"></div>
+      </div>
+
+      <div class="exam-nav" style="justify-content:center;margin-top:22px;gap:12px">
+        <button class="start" id="retry-btn" type="button">أعد المحاولة</button>
       </div>
     </section>
   </main>
