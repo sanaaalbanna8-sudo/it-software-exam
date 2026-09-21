@@ -240,6 +240,74 @@
     }
   ];
 
+  const UI4 = [
+    "Graphical (GUI)",
+    "Command line (CLI)",
+    "Menu-based",
+    "Adapted"
+  ];
+
+  const CLASSIFY = [
+    {
+      scene: "مستخدم ينقر أيقونات ويفتح نوافذ بالفأرة على شاشة ويندوز.",
+      answer: 0,
+      why: "نوافذ + أيقونات + مؤشر = Graphical (GUI)."
+    },
+    {
+      scene: "طفل يفتح لعبة من سطح المكتب بالضغط على صورة البرنامج.",
+      answer: 0,
+      why: "التفاعل بالأيقونات والصور واجهة رسومية GUI."
+    },
+    {
+      scene: "فني شبكات يكتب أوامر نصية داخل CMD لمعرفة عنوان الـ IP.",
+      answer: 1,
+      why: "أوامر نصية في سطر الأوامر = Command line (CLI)."
+    },
+    {
+      scene: "مطور يستخدم Terminal لتشغيل أوامر وإعداد السيرفر.",
+      answer: 1,
+      why: "التحكم النصي الدقيق عبر Terminal = CLI."
+    },
+    {
+      scene: "على الصراف الآلي تظهر خيارات: سحب · رصيد · تحويل · خروج.",
+      answer: 2,
+      why: "قائمة خيارات جاهزة ثابتة = Menu-based."
+    },
+    {
+      scene: "في الميكروويف تختار من قائمة: تسخين · إذابة · مؤقت.",
+      answer: 2,
+      why: "وظائف عبر قائمة على جهاز بسيط = Menu-based."
+    },
+    {
+      scene: "آلة تذاكر القطار تعرض قائمة: شراء تذكرة · شحن بطاقة · مساعدة.",
+      answer: 2,
+      why: "كiosk بقوائم اختيار = Menu-based."
+    },
+    {
+      scene: "طالب ضعيف البصر يكبّر الخط ويرفع تباين الألوان ليسهّل القراءة.",
+      answer: 3,
+      why: "تكييف الحجم واللون لإمكانية الوصول = Adapted."
+    },
+    {
+      scene: "واجهة تُعدَّل مواضع الأزرار والألوان لمستخدم لديه احتياجات خاصة.",
+      answer: 3,
+      why: "التكييف حسب احتياج المستخدم = Adapted UI."
+    },
+    {
+      scene: "موظفة تسحب الملفات وتفتح البرامج بالنقر على أيقونات سطح المكتب.",
+      answer: 0,
+      why: "العمل اليومي بالأيقونات والنوافذ = GUI."
+    }
+  ].map((q) => ({
+    section: "UI classify",
+    tag: "الجزء 2 · صنّف الواجهة",
+    scene: q.scene,
+    ask: "هذه الجملة تناسب أي واجهة من الأربع؟",
+    choices: [...UI4],
+    answer: q.answer,
+    why: q.why
+  }));
+
   const intro = document.getElementById("intro");
   const quiz = document.getElementById("quiz");
   const result = document.getElementById("result");
@@ -268,7 +336,7 @@
   }
 
   function prepareDeck() {
-    return shuffle(BANK).map((q) => {
+    const mapQ = (q) => {
       const indexed = q.choices.map((text, idx) => ({ text, idx }));
       const shuffled = shuffle(indexed);
       const answer = shuffled.findIndex((c) => c.idx === q.answer);
@@ -282,7 +350,8 @@
         answer,
         pick: null
       };
-    });
+    };
+    return [...shuffle(BANK).map(mapQ), ...shuffle(CLASSIFY).map(mapQ)];
   }
 
   function show(el) {
@@ -354,7 +423,8 @@
     const labels = {
       "OS types": "أنظمة التشغيل",
       "OS role": "مهام النظام",
-      UI: "الواجهات"
+      UI: "الواجهات",
+      "UI classify": "تصنيف الواجهات"
     };
     const stats = sectionStats();
     const box = document.getElementById("breakdown");
